@@ -1,0 +1,143 @@
+Lista as Solicitações:
+
+$.ajax({
+    url: 'http://193.123.110.180:8080/api/public/2.0/workflows/listProcess',
+    method: 'GET',
+    success: function(response) {
+        console.log(response);
+    },
+    error: function(xhr, status, error) {
+        console.error('Erro:', error);
+    }
+});
+
+
+
+$.ajax({
+    url: 'http://193.123.110.180:8080/api/public/2.0/workflows/findActiveTasks/187930',
+    method: 'GET',
+    success: function(response) {
+        console.log(response);
+    },
+    error: function(xhr, status, error) {
+        console.error('Erro:', error);
+    }
+});
+
+
+RECUPERA OS PROCESSOS:
+
+$.ajax({
+    url: '/process-management/api/v2/processes',
+    method: 'GET',
+    success: function(response) {
+        console.log(response);
+        console.log('teste')
+    },
+    error: function(xhr, status, error) {
+        console.error('Erro:', error);
+    }
+});
+
+// CANCELAR ATIVIDADE
+
+$.ajax({
+    url: 'api/public/2.0/workflows/cancelInstances',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({
+        cancelText: 'Canceled',
+        cancelInstanceList: [
+            {
+                processInstanceId: 187930,
+                cancelText: 'Canceled as a replacement',
+                replacedId: 'usr'
+            }
+        ]
+    }),
+    success: function(response) {
+        console.log('Resposta:', response);
+    },
+    error: function(xhr, status, error) {
+        console.error('Erro:', xhr.responseText);
+    }
+});
+
+//Retorna atividades:
+$.ajax({
+    url: '/process-management/api/v2/processes/1-VendadeAutomóvel/activities',
+    method: 'GET',
+    success: function(response) {
+        console.log(response);
+    },
+    error: function(xhr, status, error) {
+        console.error('Erro:', error);
+    }
+});
+
+Atividade: Excluir os processos de uma solicitação.
+
+1. Listar os processos existentes em uma Solicitação.
+
+
+2. Cancelar o processo informando o ID.
+CÓDIGO PARA CANCELAR:
+$.ajax({
+    url: '/api/public/2.0/workflows/cancelInstances',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({
+        cancelText: 'Canceled',
+        cancelInstanceList: [
+            {
+                processInstanceId: 48559,
+                cancelText: 'Canceled as a replacement'
+            }
+        ]
+    }),
+    success: function(response) {
+        console.log('Resposta:', response);
+    },
+    error: function(xhr, status, error) {
+        console.error('Erro:', xhr.responseText);
+    }
+});
+
+TELA PARA CONSULTAR AS SOLICITAÇÕES NO AMBIENTE:
+http://193.123.110.180:8080/portal/p/2/pageprocesssearch
+
+SCRIPT PARA LIMPEZA:
+$.ajax({
+    url: '/process-management/api/v2/processes/3-FechamentodeVendas/activities',
+    method: 'GET',
+    success: function(response) {
+        const solicitacoes = response.items
+        
+        solicitacoes.forEach(function(solicitacao) {
+            
+            $.ajax({
+                url: '/api/public/2.0/workflows/cancelInstances',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    cancelText: 'Canceled',
+                    cancelInstanceList: [
+                        {
+                            processInstanceId: solicitacao.processInstanceId,
+                            cancelText: 'Canceled as a replacement'
+                        }
+                    ]
+                }),
+                success: function(response) {
+                    console.log('Resposta de cancelamento para processInstanceId', solicitacao.processInstanceId, ':', response);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao cancelar instância', solicitacao.processInstanceId, ':', xhr.responseText);
+                }
+            });
+        });
+    },
+    error: function(xhr, status, error) {
+        console.error('Erro ao obter solicitações:', xhr.responseText);
+    }
+});
